@@ -1,0 +1,671 @@
+CREATE TABLE class ( class_id INT ( 10 ) NOT NULL PRIMARY KEY auto_increment, class_name VARCHAR ( 64 ) NOT NULL );
+INSERT INTO class(class_id,class_name) VALUES('1','三年二班'),('2','三年三班'),('3','一
+年二班'),('4','二年九班');
+
+CREATE TABLE SUBJECT ( subject_id INT ( 10 ) NOT NULL PRIMARY KEY auto_increment, subject_name VARCHAR ( 64 ) NOT NULL, teacher_id INT ( 10 ) );
+INSERT INTO`subject`VALUES('1','生物','1'),('2','物理','2'),('3',
+'体育','3'),('4','美术','2');
+
+CREATE TABLE score (
+	score_id INT ( 10 ) NOT NULL PRIMARY KEY auto_increment,
+	student_id INT ( 10 ),
+	subject_id INT ( 10 ) NOT NULL,
+	score INT ( 10 ) 
+);
+INSERT INTO score VALUES('1','1','1','10'),('2','1','2','9'),('5',
+'1','4','66'),('6','2','1','8'),('8','2','3','68'),('9','2',
+'4','99'),('10','3','1','77'),('11','3','2','66'),('12','3','3',
+'87'),('13','3','4','99'),('14','4','1','79'),('15','4','2','11'),
+('16','4','3','67'),('17','4','4','100'),('18','5','1','79'),
+('19','5','2','11'),('20','5','3','67'),('21','5','4','100'),
+('22','6','1','9'),('23','6','2','100'),('24','6','3','67'),('25',
+'6','4','100'),('26','7','1','9'),('27','7','2','100'),('28',
+'7','3','67'),('29','7','4','88'),('30','8','1','9'),('31','8',
+'2','100'),('32','8','3','67'),('33','8','4','88'),('34','9',
+'1','91'),('35','9','2','88'),('36','9','3','67'),('37','9','4',
+'22'),('38','10','1','90'),('39','10','2','77'),('40','10','3',
+'43'),('41','10','4','87'),('42','11','1','90'),('43','11','2',
+'77'),('44','11','3','43'),('45','11','4','87'),('46','12','1',
+'90'),('47','12','2','77'),('48','12','3','43'),('49','12','4',
+'87'),('52','13','3','87');
+
+
+CREATE TABLE student (
+	student_id INT ( 10 ) NOT NULL PRIMARY KEY auto_increment,
+	sex VARCHAR ( 64 ) NOT NULL,
+	class_id INT ( 10 ),
+	student_name VARCHAR ( 64 ) 
+)
+INSERT INTO `student` VALUES('1','男','1','理解'),('2','女','1','
+钢蛋'),('3','男','1','张三'),('4','男','1','张一'),('5','女','1',
+'张二'),('6','男','1','张四'),('7','女','2','铁锤'),('8','男','2',
+'李三'),('9','男','2','李一'),('10','女','2','李二'),('11','男',
+'2','李四'),('12','女','3','如花'),('13','男','3','刘三'),('14',
+'男','3','刘一'),('15','女','3','刘二'),('16','男','3','刘四');
+
+
+CREATE TABLE teacher (
+	teacher_id INT ( 10 ) NOT NULL PRIMARY KEY auto_increment,
+	teacher_name VARCHAR ( 64 ) NOT NULL 
+)
+INSERT INTO `teacher` VALUES('1','张磊老师'),('2','李平老师'),('3','
+刘海燕老师'),('4','朱云海老师'),('5','李杰老师');
+
+1.查询男生、女生的人数； 
+SELECT
+sex '性别',
+count( sex ) '人数' 
+FROM
+	student 
+GROUP BY
+	sex
+
+2.查询姓“张”的学生名单
+SELECT
+	* 
+FROM
+	student 
+WHERE
+	student_name LIKE '张%'
+
+3.课程平均分从高到低显示
+SELECT
+	* 
+FROM
+	score 
+ORDER BY
+	score DESC
+
+4.查询有课程成绩小于60分的同学的学号、姓名；
+SELECT
+	stu.student_id,
+	stu.student_name 
+FROM
+	student stu,
+	score sc 
+WHERE
+	stu.student_id = sc.student_id 
+	AND score < 60
+
+5.查询至少有一门课与学号为1的同学所学课程相同的同学的学号和姓名；
+
+SELECT DISTINCT
+	stu.student_id '学号',
+	stu.student_name '姓名' 
+FROM
+	student stu,
+	score sc 
+WHERE
+	stu.student_id = sc.student_id 
+	AND stu.student_id != 1 
+	AND sc.subject_id = ANY (
+	SELECT
+		sc.subject_id 
+	FROM
+		student stu,
+		score sc 
+	WHERE
+		stu.student_id = sc.student_id 
+	AND stu.student_id = 1)
+
+6.查询出只选修了一门课程的全部学生的学号和姓名；
+SELECT
+	stu.student_id '学号',
+	stu.student_name '姓名' 
+FROM
+	student stu,
+	score sc 
+WHERE
+	stu.student_id = sc.student_id 
+GROUP BY
+	stu.student_id 
+HAVING
+	count( sc.subject_id )=1
+
+7.查询各科成绩最高和最低的分：以如下形式显示：课程ID，最高分，最低分；
+SELECT
+	su.subject_id '课程ID',
+	max( sc.score ) '最高分',
+	min( sc.score ) '最低分' 
+FROM
+	SUBJECT su,
+	score sc 
+WHERE
+	su.subject_id = sc.subject_id 
+GROUP BY
+	su.subject_id
+8.查询课程编号“2”的成绩比课程编号“1”课程低的所有同学的学号、姓名；
+SELECT
+	sc.student_id '学号',
+	stu.student_name '姓名' 
+FROM
+	student stu,
+	score sc 
+WHERE
+	stu.student_id = sc.student_id 
+	AND sc.subject_id = 2 
+	AND sc.score < ( SELECT sc1.score FROM score sc1 WHERE subject_id = 1 AND sc1.student_id = sc.student_id )
+
+ 
+
+9.查询“生物”课程比“物理”课程成绩高的所有学生的学号；
+SELECT
+	sc.student_id '学号' 
+FROM
+	SUBJECT su,
+	score sc 
+WHERE
+	su.subject_id = sc.subject_id 
+	AND su.subject_name = '生物' 
+	AND sc.score > (
+	SELECT
+		sc1.score 
+	FROM
+		score sc1,
+		SUBJECT su1 
+	WHERE
+		su1.subject_id = sc1.subject_id 
+		AND su1.subject_name = '物理' 
+		AND sc1.student_id = sc.student_id 
+	)
+
+
+
+10.查询平均成绩大于60分的同学的学号和平均成绩;
+SELECT
+	stu.student_id '学号',
+	avg( score ) '平均成绩' 
+FROM
+	student stu,
+	score sc 
+WHERE
+	stu.student_id = sc.student_id 
+GROUP BY
+	stu.student_id 
+HAVING
+	avg( sc.score )> 60
+11.查询所有同学的学号、姓名、选课数、总成绩；
+SELECT
+	stu.student_id '学号',
+	stu.student_name '姓名',
+	count( sc.subject_id ) '选课数',
+	sum( sc.score ) '总成绩' 
+FROM
+	student stu,
+	score sc 
+WHERE
+	stu.student_id = sc.student_id 
+GROUP BY
+	stu.student_id 12.查询姓“李”的老师的个数； SELECT
+	count(*) '个数' 
+FROM
+	teacher 
+WHERE
+	teacher_name LIKE '李%'
+
+13.查询没学过“张磊老师”课的同学的学号、姓名；
+SELECT
+	stu.student_id '学号',
+	stu.student_name '姓名' 
+FROM
+	student stu 
+WHERE
+	stu.student_id NOT IN (
+	SELECT
+		stu.student_id '学号' 
+	FROM
+		student stu,
+		score sc 
+	WHERE
+		stu.student_id = sc.student_id 
+		AND sc.subject_id =(
+		SELECT
+			subject_id 
+		FROM
+			SUBJECT su1 
+		WHERE
+			teacher_id =(
+			SELECT
+				teacher_id 
+			FROM
+				teacher 
+			WHERE
+				teacher_name = '张磊老师' 
+			) 
+		))
+
+14.查询学过“1”并且也学过编号“2”课程的同学的学号、姓名；
+SELECT
+	stu.student_id '学号',
+	stu.student_name '姓名' 
+FROM
+	student stu,
+	score sc 
+WHERE
+	stu.student_id = sc.student_id 
+	AND sc.subject_id = 2 
+	AND stu.student_id IN (
+	SELECT
+		stu.student_id '学号' 
+	FROM
+		student stu,
+		score sc 
+	WHERE
+		stu.student_id = sc.student_id 
+		AND sc.subject_id =(
+		SELECT
+			su.subject_id 
+		FROM
+			SUBJECT su 
+		WHERE
+			su.subject_id = 1 
+		))
+15.查询学过“李平老师”所教的所有课的同学的学号、姓名；
+SELECT
+	stu.student_id '学号',
+	stu.student_name '姓名' 
+FROM
+	student stu,
+	score sc,
+	SUBJECT su 
+WHERE
+	stu.student_id = sc.student_id 
+	AND sc.subject_id = su.subject_id 
+	AND su.teacher_id =(
+	SELECT
+		teacher_id 
+	FROM
+		teacher 
+	WHERE
+		teacher_name = '李平老师' 
+	) 
+GROUP BY
+	stu.student_id 
+HAVING
+	count( sc.subject_id )=(
+	SELECT
+		count( subject_id ) 
+	FROM
+	SUBJECT 
+	WHERE
+		teacher_id =(
+		SELECT
+			teacher_id 
+		FROM
+			teacher 
+		WHERE
+			teacher_name = '李平老师'))
+
+
+
+16.查询没有学全所有课的同学的学号、姓名； 
+SELECT
+student_id,
+student_name 
+FROM
+	student 
+WHERE
+	student_id IN (
+	SELECT
+		student_id 
+	FROM
+		( SELECT count( subject_id ) c_subject_id, student_id FROM score GROUP BY student_id ) t1 
+WHERE
+	t1.c_subject_id < ( SELECT count( subject_id ) FROM `subject` ))
+	
+17.查询和“ 002”号的同学学习的课程完全相同的其他同学学号和姓名；
+SELECT
+student_id 
+FROM
+	score 
+WHERE
+	student_id NOT IN ( SELECT student_id FROM score WHERE subject_id NOT IN ( SELECT subject_id FROM score WHERE student_id = 2 ) ) 
+	AND student_id != 2 
+GROUP BY
+	student_id 
+HAVING
+	count( subject_id )= ( SELECT count( subject_id ) FROM score WHERE student_id = 2 );
+	
+18.删除学习“叶平”老师课的SC表记录；
+DELETE FROM score WHERE sc.subject_id =( SELECT subject_id FROM SUBJECT WHERE teacher_id =( SELECT teacher_id FROM teacher WHERE teacher_name = '叶平' ) )
+	
+19.向SC表中插入一些记录，这些记录要求符合以下条件：①没有上过编号“002”课程的同学学号；②插入“002”号课程的平均成绩；
+	
+20.按平均成绩从低到高显示所有学生的“语文”、“数学”、“英语”三门的课程成绩，按如下形式显示： 学生ID,语文,数学,英语,有效课程数,有效平均分；
+
+SELECT
+	stu.student_id 学生 ID,
+	t2.score 物理,
+	t1.score 生物,
+	t3.score 体育,
+	t4.score 美术,
+	t5.count_subject 有效课程数,
+	t5.avg_score 有效平均分 
+FROM
+	student stu
+	LEFT JOIN (
+	SELECT
+		student_id,
+		score 
+	FROM
+		score 
+	WHERE
+	subject_id = ( SELECT subject_id FROM `subject` WHERE subject_name = '生物' )) t1 ON stu.student_id = t1.student_id
+	LEFT JOIN (
+	SELECT
+		student_id,
+		score 
+	FROM
+		score 
+	WHERE
+	subject_id = ( SELECT subject_id FROM `subject` WHERE subject_name = '物理' )) t2 ON stu.student_id = t2.student_id
+	LEFT JOIN (
+	SELECT
+		student_id,
+		score 
+	FROM
+		score 
+	WHERE
+	subject_id = ( SELECT subject_id FROM `subject` WHERE subject_name = '体育' )) t3 ON stu.student_id = t3.student_id
+	LEFT JOIN (
+	SELECT
+		student_id,
+		score 
+	FROM
+		score 
+	WHERE
+	subject_id = ( SELECT subject_id FROM `subject` WHERE subject_name = '美术' )) t4 ON stu.student_id = t4.student_id
+	LEFT JOIN ( SELECT student_id, avg( score ) avg_score, count( score ) count_subject FROM score GROUP BY student_id ) t5 ON stu.student_id = t5.student_id
+	
+21.	查询各科成绩最高和最低的分：以如下形式显示：课程ID，最高分，最低分；	
+SELECT
+	subject_id '课程ID',
+	max( score ) '最高分',
+	min( score ) '最低分' 
+FROM
+	score 
+GROUP BY
+	subject_id
+
+22.按各科平均成绩从低到高和及格率的百分数从高到低顺序；
+SELECT avg( score ) '平均成绩', sum( score > 60 
+)/ count( score ) '及格率' 
+FROM
+	score 
+GROUP BY
+	subject_id 
+ORDER BY
+	avg( score ) ASC,
+	sum( score < 60 )/ count( score ) DESC
+	
+23.查询各科成绩前三名的记录:(不考虑成绩并列情况)
+SELECT
+	t1.student_id,
+	t1.subject_id,
+	t1.score 
+FROM
+	score t1
+	LEFT JOIN (
+	SELECT
+		score_id,
+		subject_id,
+		( SELECT score FROM score AS s2 WHERE s2.subject_id = s1.subject_id ORDER BY score DESC LIMIT 0, 1 ) AS first_num,
+		( SELECT score FROM score AS s2 WHERE s2.subject_id = s1.subject_id ORDER BY score DESC LIMIT 1, 1 ) AS second_num,
+		( SELECT score FROM score AS s2 WHERE s2.subject_id = s1.subject_id ORDER BY score DESC LIMIT 2, 1 ) AS third_num 
+	FROM
+		score AS s1 
+	) t2 ON t1.score_id = t2.score_id 
+WHERE
+	t1.score = t2.first_num 
+	OR t1.score = t2.second_num 
+	OR t1.score = t2.third_num;
+	
+24.	查询每门课程被选修的学生数；
+SELECT
+	subject_id,
+	count( subject_id ) 
+FROM
+	score 
+GROUP BY
+	subject_id;
+	
+25.查询同名同姓学生名单，并统计同名人数；
+SELECT
+	student_name '姓名',
+	count(student_name) '同名人数'
+FROM
+	student 
+GROUP BY
+	student_name
+HAVING
+  count(student_name)>1
+
+26查询每门课程的平均成绩，结果按平均成绩升序排列，平均成绩相同时，按课程号降序排列；
+SELECT
+	avg( score ) 
+FROM
+	score 
+GROUP BY
+	subject_id 
+ORDER BY
+	avg( score ) ASC,
+	subject_id DESC
+	
+27.	查询平均成绩大于85的所有学生的学号. 姓名和平均成绩；
+SELECT
+	sc.student_id,
+	avg( score ),
+	stu.student_name 
+FROM
+	score sc
+	LEFT JOIN student stu ON stu.student_id = sc.student_id 
+GROUP BY
+	student_id 
+HAVING
+	avg( score ) > 85;
+
+28.	查询课程名称为“生物”，且分数低于60的学生姓名和分数；
+SELECT
+	student.student_name,
+	score.score 
+FROM
+	score
+	LEFT JOIN `subject` ON score.subject_id = SUBJECT.subject_id
+	LEFT JOIN student ON score.student_id = student.student_id 
+WHERE
+	score.score < 60 
+	AND SUBJECT.subject_name = '生物'
+	
+
+29.	查询课程编号为003且课程成绩在80分以上的学生的学号和姓名；
+SELECT
+	stu.student_id '学号',
+	stu.student_name '姓名' 
+FROM
+	student stu,
+	score sc 
+WHERE
+	stu.student_id = sc.student_id 
+	AND sc.subject_id = 3 
+	AND sc.score > 80
+
+
+
+30.	求选了课程的学生人数
+SELECT
+	count( student_id ) 
+FROM
+  student
+WHERE
+  student_id in( SELECT student_id FROM score GROUP BY student_id )
+
+31.查询选修“李平”老师所授课程的学生中，成绩最高的学生姓名及其成绩；
+SELECT
+	student.student_name,
+	s1.score 
+FROM
+	(
+	SELECT DISTINCT
+		student_id,
+		score 
+	FROM
+		score 
+	WHERE
+		score = (
+		SELECT
+			max( score ) 
+		FROM
+			score 
+		WHERE
+			subject_id IN (
+			SELECT
+				subject_id 
+			FROM
+				`subject` 
+			WHERE
+			teacher_id IN ( SELECT teacher_id FROM teacher WHERE teacher_name = '李平老师' ))) 
+		AND subject_id IN (
+		SELECT
+			subject_id 
+		FROM
+			`subject` 
+		WHERE
+		teacher_id IN ( SELECT teacher_id FROM teacher WHERE teacher_name = '李平老师' )) 
+	) s1
+	LEFT JOIN student ON s1.student_id = student.student_id
+
+
+32.	查询各个课程及相应的选修人数；
+SELECT
+	count( student_id ) 
+FROM
+	score 
+GROUP BY
+	subject_id
+
+33.查询不同课程但成绩相同的学生的学号、课程号、学生成绩；
+SELECT DISTINCT
+  s1.student_id,
+	s1.subject_id,
+	s2.student_id,
+	s2.subject_id,
+	s1.score,
+	s2.score 
+FROM
+	score s1,
+	score s2 
+WHERE
+	s1.score = s2.score 
+	AND s1.subject_id != s2.subject_id;
+
+34.查询每门课程成绩最好的前两名；
+SELECT
+	t1.student_id,
+	t1.subject_id,
+	t1.score 
+FROM
+	score t1
+	LEFT JOIN (
+	SELECT
+		score_id,
+		subject_id,
+		( SELECT score FROM score AS s2 WHERE s2.subject_id = s1.subject_id ORDER BY score DESC LIMIT 0, 1 ) AS first_num,
+		( SELECT score FROM score AS s2 WHERE s2.subject_id = s1.subject_id ORDER BY score DESC LIMIT 1, 1 ) AS second_num 
+	FROM
+		score AS s1 
+	) t2 ON t1.score_id = t2.score_id 
+WHERE
+	t1.score = t2.first_num 
+	OR t1.score = t2.second_num;
+	
+35.	检索至少选修两门课程的学生学号；	
+SELECT
+stu.student_id
+FROM
+student stu,
+score sc
+WHERE
+stu.student_id=sc.student_id
+GROUP BY
+student_id
+HAVING
+count(subject_id)>=2
+
+36.查询全部学生都选修的课程的课程号和课程名；
+SELECT
+su.subject_id '课程号',
+su.subject_id '课程名'
+FROM
+subject su,score sc
+WHERE
+su.subject_id=sc.subject_id
+GROUP BY
+su.subject_id
+HAVING
+count(sc.student_id)=(SELECT
+count(student_id)
+from
+student
+)
+
+37.	查询没学过“李平”老师讲授的任一门课程的学生姓名；
+
+SELECT
+	student_name 
+FROM
+	student 
+WHERE
+	student_id NOT IN (
+	SELECT DISTINCT
+		stu.student_id 
+	FROM
+		student stu,
+		score sc 
+	WHERE
+		stu.student_id = sc.student_id 
+		AND sc.subject_id IN ( SELECT su.subject_id FROM SUBJECT su, teacher te WHERE su.teacher_id = te.teacher_id AND te.teacher_name = '李平老师' ) 
+	)
+
+
+38.	查询两门以上不及格课程的同学的学号及其平均成绩；
+SELECT
+student_id,
+avg(score)
+FROM
+score
+GROUP BY
+student_id
+HAVING
+sum(score<60)>=2
+
+-- SELECT
+-- 	student_id,
+-- 	avg( score ) 
+-- FROM
+-- 	score 
+-- WHERE
+-- 	score < 60 
+-- GROUP BY
+-- 	student_id 
+-- HAVING
+-- 	count( score )>= 2;
+
+39.	检索“004”课程分数小于60，按分数降序排列的同学学号；
+SELECT
+student_id
+from
+score
+WHERE
+subject_id=4
+AND
+score<60
+ORDER BY
+score DESC
+
+40.删除“002”同学的“001”课程的成绩；
+DELETE 
+FROM
+	score 
+WHERE
+	subject_id = 1 
+	AND student_id = 2

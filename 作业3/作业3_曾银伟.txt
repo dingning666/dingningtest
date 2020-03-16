@@ -1,0 +1,415 @@
+/*
+ * 学生属性的实体类
+ * 曾银伟
+ * 2020.03.04 17:30
+ *
+ * */
+
+public class Student {
+    //学生姓名
+    private String name;
+    
+    //学生年龄
+    private int age;
+    
+    //学生成绩
+    private int grade;
+    
+    //教室
+    private String room;
+
+    public Student() {
+    }
+
+    public Student(String name, int age, int grade, String room) {
+        this.name = name;
+        this.age = age;
+        this.grade = grade;
+        this.room = room;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public int getGrade() {
+        return grade;
+    }
+
+    public void setGrade(int grade) {
+        this.grade = grade;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", grade=" + grade +
+                ", room='" + room + '\'' +
+                '}';
+    }
+}
+
+
+//练习题第一题
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+import java.util.List;
+
+public class Test01List {
+
+    public static void main(String[] args) {
+
+
+        List<Student> list1 = new ArrayList<>();
+        list1.add(new Student("张三", 18, 80, "1班"));
+        list1.add(new Student("李四", 19, 100, "1班"));
+        list1.add(new Student("王五", 17, 59, "1班"));
+
+        List<Student> list2 = new ArrayList<>();
+        list2.add(new Student("赵六", 18, 85, "2班"));
+        list2.add(new Student("刘七", 19, 93, "2班"));
+        list2.add(new Student("孙八", 17, 55, "2班"));
+
+        //（1）整合两个list学生信息成一个新的list
+        List<Student> list = new ArrayList<>();
+        list.addAll(list2);
+        list.addAll(list1);
+
+        //（2）按照分数给出学生信息排名
+        System.out.println("按照分数从低到高排列信息：");
+        Collections.sort(list, (o1, o2) -> o1.getGrade() - o2.getGrade());
+        for (Student student : list) {
+            System.out.println(student);
+        }
+
+        System.out.println("====================================");
+        //（3）输出不及格的学生信息
+        System.out.println("不及格学生的信息：");
+        for (Student student : list) {
+            if (student.getGrade() < 60) {
+                System.out.println(student);
+            }
+        }
+        System.out.println("===================================");
+
+        //（4）查找张三的信息
+        System.out.println("张三的信息：");
+        for (Student student : list) {
+            if (student.getName() == "张三") {
+                System.out.println(student);
+
+            }
+        }
+        System.out.println("==================================");
+        System.out.println("除去年龄大于18的学生信息：");
+        List<Student> list3 = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getAge() > 18) {
+                list3.add(list.get(i));
+            }
+        }
+        list.removeAll(list3);
+        for (Student student : list) {
+            System.out.println(student);
+        }
+    }
+
+}
+
+
+//练习第二题
+import java.util.*;
+
+public class Test02Map {
+    public static void main(String[] args) {
+
+        Map<Student, Integer> map1 = new LinkedHashMap<>();
+        map1.put(new Student("张三", 18, 80, "1班"), 1);
+        map1.put(new Student("李四", 19, 100, "1班"), 2);
+        map1.put(new Student("王五", 17, 59, "1班"), 3);
+
+        Map<Student, Integer> map2 = new HashMap<>();
+        map2.put(new Student("赵六", 18, 85, "2班"), 4);
+        map2.put(new Student("刘七", 19, 93, "2班"), 5);
+        map2.put(new Student("孙八", 17, 55, "2班"), 6);
+
+        Map<Student, Integer> map = new LinkedHashMap<>();
+        map1.putAll(map2);
+        map.putAll(map1);
+
+
+        Set<Student> set = map.keySet();
+        List<Student> list = new ArrayList<>();
+        for (Student student : set) {
+            list.add(student);
+        }
+
+        System.out.println("按照分数从低到高排列信息：");
+        Collections.sort(list, (o1, o2) -> o1.getGrade() - o2.getGrade());
+        for (Student student : list) {
+            System.out.println(student);
+        }
+
+        System.out.println("====================================");
+        //（3）输出不及格的学生信息
+        System.out.println("不及格学生的信息：");
+        for (Student student : list) {
+            if (student.getGrade() < 60) {
+                System.out.println(student);
+            }
+        }
+        System.out.println("===================================");
+
+        //（4）查找张三的信息
+        System.out.println("张三的信息：");
+        for (Student student : list) {
+            if (student.getName() == "张三") {
+                System.out.println(student);
+
+            }
+        }
+        System.out.println("==================================");
+        System.out.println("除去年龄大于18的学生信息：");
+        List<Student> list3 = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getAge() > 18) {
+                list3.add(list.get(i));
+            }
+        }
+        list.removeAll(list3);
+        for (Student student : list) {
+            System.out.println(student);
+        }
+
+
+    }
+
+
+}
+
+
+
+import java.util.Date;
+
+/*
+* 订单的实体类
+* 曾银伟
+* 2020.03.04 21:00
+*
+*
+* */
+public class Orders {
+    //商品的id
+    private int id;
+    //商品的总价
+    private float total;
+    //商品的数量
+    private int amount;
+    //订单状态
+    private  byte status;
+    //支付方式
+    private byte paytype;
+    //收货人
+    private String name;
+    //收货电话
+    private String phone;
+    //收货地址
+    private  String address;
+    //下单时间
+    private Date date;
+
+    public Orders() {
+    }
+
+    public Orders(int id, float total, int amount, byte status, byte paytype, String name, String phone, String address, Date date) {
+        this.id = id;
+        this.total = total;
+        this.amount = amount;
+        this.status = status;
+        this.paytype = paytype;
+        this.name = name;
+        this.phone = phone;
+        this.address = address;
+        this.date = date;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public float getTotal() {
+        return total;
+    }
+
+    public void setTotal(float total) {
+        this.total = total;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public byte getStatus() {
+        return status;
+    }
+
+    public void setStatus(byte status) {
+        this.status = status;
+    }
+
+    public byte getPaytype() {
+        return paytype;
+    }
+
+    public void setPaytype(byte paytype) {
+        this.paytype = paytype;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+}
+
+
+/*
+* 商品的实体类
+* 曾银伟
+* 2020.03.04 22:00
+*
+*
+* */
+public class Goods {
+    //商品的id
+    private int id;
+    //商品的名称
+    private String name;
+    //商品的价格
+    private int price;
+    //图片
+    private String image;
+    //库存
+    private int stock;
+    //商品的简介
+    private String intro;
+
+    public Goods() {
+    }
+
+    public Goods(int id, String name, int price, String image, int stock, String intro) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.image = image;
+        this.stock = stock;
+        this.intro = intro;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+}
+

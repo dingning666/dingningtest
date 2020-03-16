@@ -1,0 +1,61 @@
+¢Ùpublic class Test01 {
+    public static void main(String[] args) {
+
+        int sum = 0;
+        for (int i = 0 ; i <= 100 ;i++) {
+
+            sum += i;
+
+        }
+        System.out.println(sum);
+    }
+}
+
+¢Úpublic class Test02 {
+    public static void main(String[] args) {
+
+        for (int i = 1; i <= 9; i++) {
+
+            for (int j = 1; j <= i; j++) {
+                System.out.print(j + "*" + i + "=" + j * i + " ");
+            }
+            
+            System.out.println();
+        }
+
+    }
+}
+
+¢Ûpublic class Test03 {
+
+    public static void main(String[] args) {
+
+        for (int i = 0; i < 100; i++) {
+
+            if ((i % 2) != 0) {
+                System.out.println(i);
+            }
+        }
+    }
+
+}
+
+¢Üpublic class Test04 {
+
+    public static void main(String[] args) {
+
+        int sum = 0;
+        for (int i = 101; i <= 200; i++) {
+            int n = 0;
+            for (int j = 2; j < i; j++) {
+                if (i % j == 0)
+                    n = n + 1;
+            }
+            if (n == 0)
+                System.out.println(i);
+            sum += i;
+        }
+        System.out.println(sum);
+    }
+}
+
